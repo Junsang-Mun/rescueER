@@ -10,11 +10,10 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-        home: Scaffold(
-      appBar: AppBar(title: const Text('Startup Name Generator')),
-      body: const RandomWords(),
-    ));
+    return const MaterialApp(
+      title: 'Startup Name Generator',
+      home: RandomWords(),
+    );
   }
 }
 
@@ -31,8 +30,50 @@ class RandomWordsState extends State<RandomWords> {
   final _biggerFont = const TextStyle(fontSize: 18.0);
   @override
   Widget build(BuildContext context) {
+    void _pushSaved() {
+      Navigator.of(context).push(MaterialPageRoute<void>(
+        builder: (context) {
+          final tiles = _saved.map(
+            (pair) {
+              return ListTile(
+                title: Text(
+                  pair.asPascalCase,
+                  style: _biggerFont,
+                ),
+              );
+            },
+          );
+          final divided = tiles.isNotEmpty
+              ? ListTile.divideTiles(
+                  context: context,
+                  tiles: tiles,
+                ).toList()
+              : <Widget>[];
+
+          return Scaffold(
+            appBar: AppBar(
+              title: const Text('Saved Suggestions'),
+            ),
+            body: ListView(children: divided),
+          );
+        },
+      ));
+    }
+
     //final wordPair = WordPair.random();
-    return _buildSuggestions();
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Startup Name Generator'),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.list),
+            onPressed: _pushSaved,
+            tooltip: 'Saved Suggestions',
+          )
+        ],
+      ),
+      body: _buildSuggestions(),
+    );
   }
 
   Widget _buildSuggestions() {
