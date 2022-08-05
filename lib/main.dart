@@ -12,13 +12,15 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
         home: Scaffold(
-      appBar: AppBar(title: Text('Startup Name Generator')),
-      body: RandomWords(),
+      appBar: AppBar(title: const Text('Startup Name Generator')),
+      body: const RandomWords(),
     ));
   }
 }
 
 class RandomWords extends StatefulWidget {
+  const RandomWords({Key? key}) : super(key: key);
+
   @override
   RandomWordsState createState() => RandomWordsState();
 }
@@ -29,7 +31,7 @@ class RandomWordsState extends State<RandomWords> {
   final _biggerFont = const TextStyle(fontSize: 18.0);
   @override
   Widget build(BuildContext context) {
-    final wordPair = WordPair.random();
+    //final wordPair = WordPair.random();
     return _buildSuggestions();
   }
 
@@ -37,7 +39,7 @@ class RandomWordsState extends State<RandomWords> {
     return ListView.builder(
         padding: const EdgeInsets.all(16.0),
         itemBuilder: /*1*/ (context, i) {
-          if (i.isOdd) return Divider(); /*2*/
+          if (i.isOdd) return const Divider(); /*2*/
 
           final index = i ~/ 2; /*3*/
           if (index >= _suggestions.length) {
