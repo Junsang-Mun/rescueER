@@ -45,11 +45,11 @@ class RandomWordsState extends State<RandomWords> {
           }
 
           final alreadySaved = _saved.contains(_suggestions[index]);
-          return _buildRow(_suggestions[index], alreadySaved);
+          return _buildRow(_suggestions[index], alreadySaved, index);
         });
   }
 
-  Widget _buildRow(WordPair pair, bool alreadySaved) {
+  Widget _buildRow(WordPair pair, bool alreadySaved, int index) {
     return ListTile(
       title: Text(
         pair.asPascalCase,
@@ -60,6 +60,15 @@ class RandomWordsState extends State<RandomWords> {
         color: alreadySaved ? Colors.red : null,
         semanticLabel: alreadySaved ? 'Removed from Saved' : 'Saved',
       ),
+      onTap: () {
+        setState(() {
+          if (alreadySaved) {
+            _saved.remove(_suggestions[index]);
+          } else {
+            _saved.add(_suggestions[index]);
+          }
+        });
+      },
     );
   }
 }
