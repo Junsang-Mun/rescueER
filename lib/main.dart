@@ -1,11 +1,13 @@
 import 'dart:convert';
-//import 'dart:html';
+import 'dart:io';
 import 'package:flutter/material.dart';
-//import 'package:english_words/english_words.dart';
 import 'package:http/http.dart' as http;
 import 'package:xml/xml.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
-void main() {
+void main() async {
+  await dotenv.load(fileName: ".env");
+  HttpOverrides.global = MyHttpOverrides();
   runApp(const MyApp());
 }
 
@@ -69,8 +71,9 @@ class HomePageState extends State<HomePage> {
           IconButton(
               icon: const Icon(Icons.cloud_sync),
               onPressed: () async {
-                const url =
-                    'https://apis.data.go.kr/B552657/ErmctInfoInqireService/getEmrrmRltmUsefulSckbdInfoInqire?serviceKey=&STAGE1=%EC%84%9C%EC%9A%B8%ED%8A%B9%EB%B3%84%EC%8B%9C&STAGE2=%EA%B0%95%EB%82%A8%EA%B5%AC&pageNo=1&numOfRows=10';
+                String apiKey = dotenv.get('API_KEY');
+                String url =
+                    'https://apis.data.go.kr/B552657/ErmctInfoInqireService/getEmrrmRltmUsefulSckbdInfoInqire?serviceKey=$apiKey&STAGE1=%EC%84%9C%EC%9A%B8%ED%8A%B9%EB%B3%84%EC%8B%9C&STAGE2=%EA%B0%95%EB%82%A8%EA%B5%AC&pageNo=1&numOfRows=10';
                 var response = await http.get(Uri.parse(url));
                 apiData = XmlDocument.parse(utf8.decode(response.bodyBytes));
                 final datas = apiData.findAllElements('item');
@@ -92,6 +95,15 @@ class HomePageState extends State<HomePage> {
         ],
       ),
     );
+  }
+}
+
+class MyHttpOverrides extends HttpOverrides {
+  @override
+  HttpClient createHttpClient(SecurityContext? context) {
+    return super.createHttpClient(context)
+      ..badCertificateCallback =
+          (X509Certificate cert, String host, int port) => true;
   }
 }
 
