@@ -1,5 +1,5 @@
 name: rescueer
-description: A new Flutter project.
+description: ER 가용현황 실시간 조회
 
 publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 
@@ -16,6 +16,7 @@ dependencies:
   cupertino_icons: ^1.0.2
   english_words: ^4.0.0
   http: ^0.13.5
+  xml: ^6.1.0
 
 dev_dependencies:
   flutter_test:
