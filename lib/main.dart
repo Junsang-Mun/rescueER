@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:html';
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
@@ -25,6 +26,7 @@ class MyApp extends StatelessWidget {
 
 class ERdata {
   String erName; // 응급실 이름
+  String erCall; // 응급실 직통전화
   String updateDate; // 최신화 날짜
   String availableER; // 가용 응급실 베드 수
   String availableOR; // 가용 수술실 수
@@ -32,13 +34,14 @@ class ERdata {
   String availableMICU; // 가용 내과중환자실 베드 수
   String availableSICU; // 가용 외과중환자실 베드 수
   String availableNSCICU; // 가용 신경외과중환자실 베드 수
-  bool ctYN; // CT 촬영 가용 여부
-  bool agYN; // 조영촬영 가용 여부
-  bool mriYN; // MRI 촬영 가용 여부
-  bool ventYN; //인공호흡기 가용 여부
+  String ctYN; // CT 촬영 가용 여부
+  String agYN; // 조영촬영 가용 여부
+  String mriYN; // MRI 촬영 가용 여부
+  String ventYN; //인공호흡기 가용 여부
 
   ERdata(
       {this.erName = '0',
+      this.erCall = '0',
       this.updateDate = '0',
       this.availableER = '0',
       this.availableOR = '0',
@@ -46,10 +49,10 @@ class ERdata {
       this.availableMICU = '0',
       this.availableSICU = '0',
       this.availableNSCICU = '0',
-      this.ctYN = false,
-      this.agYN = false,
-      this.mriYN = false,
-      this.ventYN = false});
+      this.ctYN = '0',
+      this.agYN = '0',
+      this.mriYN = '0',
+      this.ventYN = '0'});
 }
 
 class HomePage extends StatefulWidget {
@@ -80,16 +83,19 @@ class HomePageState extends State<HomePage> {
                 print(datas);
                 datas.forEach((element) {
                   erData = ERdata(
-                    erName: element.getElement('dutyname')!.text,
-                    updateDate: element.getElement('hvidate')!.text,
-                    availableER: element.getElement('hvec')!.text,
-                    availableOR: element.getElement('hvoc')!.text,
-                    availableRM: element.getElement('hvgc')!.text,
-                    availableMICU: element.getElement('hv2')!.text,
-                    availableSICU: element.getElement('hv3')!.text,
-                    availableNSCICU: element.getElement('hv6')!.text,
-                  );
-                  print(erData.erName);
+                      erName: element.getElement('dutyName')!.text,
+                      erCall: element.getElement('dutyTel3')!.text,
+                      updateDate: element.getElement('hvidate')!.text,
+                      availableER: element.getElement('hvec')!.text,
+                      availableOR: element.getElement('hvoc')!.text,
+                      availableRM: element.getElement('hvgc')!.text,
+                      availableMICU: element.getElement('hv2')!.text,
+                      availableSICU: element.getElement('hv3')!.text,
+                      availableNSCICU: element.getElement('hv6')!.text,
+                      ctYN: element.getElement('hvctayn')!.text,
+                      agYN: element.getElement('hvangioayn')!.text,
+                      mriYN: element.getElement('hvmriayn')!.text,
+                      ventYN: element.getElement('hvamyn')!.text);
                 });
               })
         ],
