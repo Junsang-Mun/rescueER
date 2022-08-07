@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'dart:html';
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
@@ -17,8 +16,8 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Startup Name Generator',
+    return const MaterialApp(
+      title: "어쩔테레비",
       home: HomePage(),
     );
   }
@@ -56,6 +55,7 @@ class ERdata {
 }
 
 class HomePage extends StatefulWidget {
+  const HomePage({Key? key}) : super(key: key);
   @override
   HomePageState createState() => HomePageState();
 }
@@ -80,7 +80,6 @@ class HomePageState extends State<HomePage> {
                 var response = await http.get(Uri.parse(url));
                 apiData = XmlDocument.parse(utf8.decode(response.bodyBytes));
                 final datas = apiData.findAllElements('item');
-                print(datas);
                 datas.forEach((element) {
                   erData = ERdata(
                       erName: element.getElement('dutyName')!.text,
