@@ -24,6 +24,7 @@ class MyApp extends StatelessWidget {
 }
 
 class ERdata {
+  String erId; // 응급실 기관번호
   String erName; // 응급실 이름
   String erCall; // 응급실 직통전화
   String updateDate; // 최신화 날짜
@@ -39,7 +40,8 @@ class ERdata {
   String ventYN; //인공호흡기 가용 여부
 
   ERdata(
-      {this.erName = '0',
+      {this.erId = '0',
+      this.erName = '0',
       this.erCall = '0',
       this.updateDate = '0',
       this.availableER = '0',
@@ -63,6 +65,7 @@ class HomePage extends StatefulWidget {
 class HomePageState extends State<HomePage> {
   late XmlDocument apiData;
   ERdata erData = ERdata();
+  List<ERdata> erList = [];
 
   @override
   Widget build(BuildContext context) {
@@ -76,25 +79,39 @@ class HomePageState extends State<HomePage> {
               onPressed: () async {
                 String apiKey = dotenv.get('API_KEY');
                 String url =
-                    'https://apis.data.go.kr/B552657/ErmctInfoInqireService/getEmrrmRltmUsefulSckbdInfoInqire?serviceKey=$apiKey&STAGE1=%EC%84%9C%EC%9A%B8%ED%8A%B9%EB%B3%84%EC%8B%9C&STAGE2=%EA%B0%95%EB%82%A8%EA%B5%AC&pageNo=1&numOfRows=10';
+                    'https://apis.data.go.kr/B552657/ErmctInfoInqireService/getEmrrmRltmUsefulSckbdInfoInqire?serviceKey=$apiKey&STAGE1=서울특별시&STAGE2=&pageNo=1&numOfRows=10';
                 var response = await http.get(Uri.parse(url));
                 apiData = XmlDocument.parse(utf8.decode(response.bodyBytes));
                 final datas = apiData.findAllElements('item');
+                if (apiData
+                        .getElement('response')!
+                        .getElement('header')!
+                        .getElement('resultCode')!
+                        .text !=
+                    '00') {
+                  print('API Error');
+                }
                 datas.forEach((element) {
                   erData = ERdata(
+                      erId: element.getElement('hpid')!.text,
                       erName: element.getElement('dutyName')!.text,
                       erCall: element.getElement('dutyTel3')!.text,
                       updateDate: element.getElement('hvidate')!.text,
-                      availableER: element.getElement('hvec')!.text,
-                      availableOR: element.getElement('hvoc')!.text,
-                      availableRM: element.getElement('hvgc')!.text,
-                      availableMICU: element.getElement('hv2')!.text,
-                      availableSICU: element.getElement('hv3')!.text,
-                      availableNSCICU: element.getElement('hv6')!.text,
-                      ctYN: element.getElement('hvctayn')!.text,
-                      agYN: element.getElement('hvangioayn')!.text,
-                      mriYN: element.getElement('hvmriayn')!.text,
-                      ventYN: element.getElement('hvamyn')!.text);
+                      availableER: element.getElement('hvec')!.text, // 응급실
+                      availableOR: element.getElement('hvoc')!.text, // 수술실
+                      availableRM: element.getElement('hvgc')!.text, // 입원실
+                      availableMICU: element.getElement('hv2')!.text, // 내과중환
+                      availableSICU: element.getElement('hv3')!.text, // 외과중환
+                      availableNSCICU: element.getElement('hv6')!.text, // 신경중환
+                      ctYN: element.getElement('hvctayn')!.text, // CT
+                      agYN: element.getElement('hvangioayn')!.text, // 조영촬영
+                      mriYN: element.getElement('hvmriayn')!.text, // MRI
+                      ventYN: element.getElement('hvamyn')!.text // 인공호흡기
+                      );
+                  erList.add(erData);
+                });
+                erList.forEach((element) {
+                  print(element.erName);
                 });
               })
         ],
