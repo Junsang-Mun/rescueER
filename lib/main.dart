@@ -151,7 +151,10 @@ class BuildERTile extends StatelessWidget {
   Widget build(BuildContext context) {
     return ListView.builder(
       padding: const EdgeInsets.all(8),
-      itemCount: ,
-    )
+      itemCount: erList.length,
+      itemBuilder: (context, index) {
+        return ERTile(erList[index]);
+      },
+    );
   }
 }
