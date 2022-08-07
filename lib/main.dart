@@ -1,27 +1,10 @@
 import 'dart:convert';
+import 'dart:html';
 import 'dart:io';
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
+import 'package:http/http.dart';
 import 'package:xml/xml.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
-
-void main() async {
-  await dotenv.load(fileName: ".env");
-  HttpOverrides.global = MyHttpOverrides();
-  runApp(const MyApp());
-}
-
-class MyApp extends StatelessWidget {
-  const MyApp({Key? key}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return const MaterialApp(
-      title: "어쩔테레비",
-      home: HomePage(),
-    );
-  }
-}
 
 class ERdata {
   String erId; // 응급실 기관번호
@@ -56,71 +39,16 @@ class ERdata {
       this.ventYN = '0'});
 }
 
-class HomePage extends StatefulWidget {
-  const HomePage({Key? key}) : super(key: key);
-  @override
-  HomePageState createState() => HomePageState();
+List<ERdata> erList = [];
+
+void main() async {
+  await dotenv.load(fileName: '.env');
+  GetERData();
+  HttpOverrides.global = AvoidHttpCertErr();
+  runApp(const MyApp());
 }
 
-class HomePageState extends State<HomePage> {
-  late XmlDocument apiData;
-  ERdata erData = ERdata();
-  List<ERdata> erList = [];
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('rescueER'),
-        centerTitle: true,
-        actions: [
-          IconButton(
-              icon: const Icon(Icons.cloud_sync),
-              onPressed: () async {
-                String apiKey = dotenv.get('API_KEY');
-                String url =
-                    'https://apis.data.go.kr/B552657/ErmctInfoInqireService/getEmrrmRltmUsefulSckbdInfoInqire?serviceKey=$apiKey&STAGE1=서울특별시&STAGE2=&pageNo=1&numOfRows=10';
-                var response = await http.get(Uri.parse(url));
-                apiData = XmlDocument.parse(utf8.decode(response.bodyBytes));
-                final datas = apiData.findAllElements('item');
-                if (apiData
-                        .getElement('response')!
-                        .getElement('header')!
-                        .getElement('resultCode')!
-                        .text !=
-                    '00') {
-                  print('API Error');
-                }
-                datas.forEach((element) {
-                  erData = ERdata(
-                      erId: element.getElement('hpid')!.text,
-                      erName: element.getElement('dutyName')!.text,
-                      erCall: element.getElement('dutyTel3')!.text,
-                      updateDate: element.getElement('hvidate')!.text,
-                      availableER: element.getElement('hvec')!.text, // 응급실
-                      availableOR: element.getElement('hvoc')!.text, // 수술실
-                      availableRM: element.getElement('hvgc')!.text, // 입원실
-                      availableMICU: element.getElement('hv2')!.text, // 내과중환
-                      availableSICU: element.getElement('hv3')!.text, // 외과중환
-                      availableNSCICU: element.getElement('hv6')!.text, // 신경중환
-                      ctYN: element.getElement('hvctayn')!.text, // CT
-                      agYN: element.getElement('hvangioayn')!.text, // 조영촬영
-                      mriYN: element.getElement('hvmriayn')!.text, // MRI
-                      ventYN: element.getElement('hvamyn')!.text // 인공호흡기
-                      );
-                  erList.add(erData);
-                });
-                erList.forEach((element) {
-                  print(element.erName);
-                });
-              })
-        ],
-      ),
-    );
-  }
-}
-
-class MyHttpOverrides extends HttpOverrides {
+class AvoidHttpCertErr extends HttpOverrides {
   @override
   HttpClient createHttpClient(SecurityContext? context) {
     return super.createHttpClient(context)
@@ -129,115 +57,101 @@ class MyHttpOverrides extends HttpOverrides {
   }
 }
 
-/*
+void GetERData() async {
+  late XmlDocument apiData;
+  ERdata erData = ERdata();
+
+  String apiKey = dotenv.get('API_KEY');
+  String url = 'https://apis.data.go.kr/B552657/ErmctInfoInqireService/getEmrrmRltmUsefulSckbdInfoInqire?serviceKey=$apiKey&STAGE1=서울특별시&STAGE2=&pageNo=1&numOfRows=10';
+  var response = await get(Uri.parse(url));
+  apiData = XmlDocument.parse(utf8.decode(response.bodyBytes));
+  final datas = apiData.findAllElements('item');
+
+  if (apiData.getElement('response')!.getElement('header')!.getElement('resultCode')!.text != '00') {
+    print('API Error');
+  }
+  datas.forEach((element) {
+    erData = ERdata(
+      erId: element.getElement('hpid')!.text,
+      erName: element.getElement('dutyName')!.text,
+      erCall: element.getElement('dutyTel3')!.text,
+      updateDate: element.getElement('hvidate')!.text,
+      availableER: element.getElement('hvec')!.text, // 응급실
+      availableOR: element.getElement('hvoc')!.text, // 수술실
+      availableRM: element.getElement('hvgc')!.text, // 입원실
+      availableMICU: element.getElement('hv2')!.text, // 내과중환
+      availableSICU: element.getElement('hv3')!.text, // 외과중환
+      availableNSCICU: element.getElement('hv6')!.text, // 신경중환
+      ctYN: element.getElement('hvctayn')!.text, // CT
+      agYN: element.getElement('hvangioayn')!.text, // 조영촬영
+      mriYN: element.getElement('hvmriayn')!.text, // MRI
+      ventYN: element.getElement('hvamyn')!.text // 인공호흡기
+    );
+    erList.add(erData);
+  });
+  
+}
+
 class MyApp extends StatelessWidget {
   const MyApp({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return const MaterialApp(
-      title: 'Startup Name Generator',
-      home: RandomWords(),
+      title: 'rescueER',
+      home: HomePage(),
     );
   }
 }
 
-class RandomWords extends StatefulWidget {
-  const RandomWords({Key? key}) : super(key: key);
+class HomePage extends StatefulWidget {
+  const HomePage({Key? key}) : super(key: key);
 
   @override
-  RandomWordsState createState() => RandomWordsState();
+  HomePageState createState() => HomePageState();
 }
 
-class RandomWordsState extends State<RandomWords> {
-  final _suggestions = <WordPair>[];
-  final _saved = <WordPair>{};
-  final _biggerFont = const TextStyle(fontSize: 18.0);
+class HomePageState extends State<HomePage> {
+  late XmlDocument apiData;
+  ERdata erData = ERdata();
+
   @override
   Widget build(BuildContext context) {
-    void _pushSaved() {
-      Navigator.of(context).push(MaterialPageRoute<void>(
-        builder: (context) {
-          final tiles = _saved.map(
-            (pair) {
-              return ListTile(
-                title: Text(
-                  pair.asPascalCase,
-                  style: _biggerFont,
-                ),
-              );
-            },
-          );
-          final divided = tiles.isNotEmpty
-              ? ListTile.divideTiles(
-                  context: context,
-                  tiles: tiles,
-                ).toList()
-              : <Widget>[];
-
-          return Scaffold(
-            appBar: AppBar(
-              title: const Text('Saved Suggestions'),
-            ),
-            body: ListView(children: divided),
-          );
-        },
-      ));
-    }
-
-    //final wordPair = WordPair.random();
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Startup Name Generator'),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.list),
-            onPressed: _pushSaved,
-            tooltip: 'Saved Suggestions',
-          )
-        ],
+        title: const Text('rescueER'),
       ),
-      body: _buildSuggestions(),
+      body: ListOfER(),
     );
   }
 
-  Widget _buildSuggestions() {
-    return ListView.builder(
-        padding: const EdgeInsets.all(16.0),
-        itemBuilder: /*1*/ (context, i) {
-          if (i.isOdd) return const Divider(); /*2*/
-
-          final index = i ~/ 2; /*3*/
-          if (index >= _suggestions.length) {
-            _suggestions.addAll(generateWordPairs().take(10)); /*4*/
-          }
-
-          final alreadySaved = _saved.contains(_suggestions[index]);
-          return _buildRow(_suggestions[index], alreadySaved, index);
-        });
+  Widget ListOfER() {
+    return 
   }
+}
 
-  Widget _buildRow(WordPair pair, bool alreadySaved, int index) {
+class ERTile extends StatelessWidget {
+  ERTile(this._erData);
+  final ERdata _erData;
+
+  @override
+  Widget build(BuildContext context) {
     return ListTile(
-      title: Text(
-        pair.asPascalCase,
-        style: _biggerFont,
-      ),
-      trailing: Icon(
-        alreadySaved ? Icons.favorite : Icons.favorite_border,
-        color: alreadySaved ? Colors.red : null,
-        semanticLabel: alreadySaved ? 'Removed from Saved' : 'Saved',
-      ),
-      onTap: () {
-        setState(() {
-          if (alreadySaved) {
-            _saved.remove(_suggestions[index]);
-          } else {
-            _saved.add(_suggestions[index]);
-          }
-        });
-      },
+      leading: const Icon(Icons.local_hospital),
+      title: Text(_erData.erName),
+      trailing: Text('응급실: ${_erData.availableER}'),
     );
   }
 }
-*/
+
+class BuildERTile extends StatelessWidget {
+  const BuildERTile({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return ListView.builder(
+      padding: const EdgeInsets.all(8),
+      itemCount: ,
+    )
+  }
+}
