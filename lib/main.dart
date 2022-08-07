@@ -62,34 +62,39 @@ void GetERData() async {
   ERdata erData = ERdata();
 
   String apiKey = dotenv.get('API_KEY');
-  String url = 'https://apis.data.go.kr/B552657/ErmctInfoInqireService/getEmrrmRltmUsefulSckbdInfoInqire?serviceKey=$apiKey&STAGE1=서울특별시&STAGE2=&pageNo=1&numOfRows=10';
+  String url =
+      'https://apis.data.go.kr/B552657/ErmctInfoInqireService/getEmrrmRltmUsefulSckbdInfoInqire?serviceKey=$apiKey&STAGE1=서울특별시&STAGE2=&pageNo=1&numOfRows=10';
   var response = await get(Uri.parse(url));
   apiData = XmlDocument.parse(utf8.decode(response.bodyBytes));
   final datas = apiData.findAllElements('item');
 
-  if (apiData.getElement('response')!.getElement('header')!.getElement('resultCode')!.text != '00') {
+  if (apiData
+          .getElement('response')!
+          .getElement('header')!
+          .getElement('resultCode')!
+          .text !=
+      '00') {
     print('API Error');
   }
   datas.forEach((element) {
     erData = ERdata(
-      erId: element.getElement('hpid')!.text,
-      erName: element.getElement('dutyName')!.text,
-      erCall: element.getElement('dutyTel3')!.text,
-      updateDate: element.getElement('hvidate')!.text,
-      availableER: element.getElement('hvec')!.text, // 응급실
-      availableOR: element.getElement('hvoc')!.text, // 수술실
-      availableRM: element.getElement('hvgc')!.text, // 입원실
-      availableMICU: element.getElement('hv2')!.text, // 내과중환
-      availableSICU: element.getElement('hv3')!.text, // 외과중환
-      availableNSCICU: element.getElement('hv6')!.text, // 신경중환
-      ctYN: element.getElement('hvctayn')!.text, // CT
-      agYN: element.getElement('hvangioayn')!.text, // 조영촬영
-      mriYN: element.getElement('hvmriayn')!.text, // MRI
-      ventYN: element.getElement('hvamyn')!.text // 인공호흡기
-    );
+        erId: element.getElement('hpid')!.text,
+        erName: element.getElement('dutyName')!.text,
+        erCall: element.getElement('dutyTel3')!.text,
+        updateDate: element.getElement('hvidate')!.text,
+        availableER: element.getElement('hvec')!.text, // 응급실
+        availableOR: element.getElement('hvoc')!.text, // 수술실
+        availableRM: element.getElement('hvgc')!.text, // 입원실
+        availableMICU: element.getElement('hv2')!.text, // 내과중환
+        availableSICU: element.getElement('hv3')!.text, // 외과중환
+        availableNSCICU: element.getElement('hv6')!.text, // 신경중환
+        ctYN: element.getElement('hvctayn')!.text, // CT
+        agYN: element.getElement('hvangioayn')!.text, // 조영촬영
+        mriYN: element.getElement('hvmriayn')!.text, // MRI
+        ventYN: element.getElement('hvamyn')!.text // 인공호흡기
+        );
     erList.add(erData);
   });
-  
 }
 
 class MyApp extends StatelessWidget {
@@ -121,12 +126,8 @@ class HomePageState extends State<HomePage> {
       appBar: AppBar(
         title: const Text('rescueER'),
       ),
-      body: ListOfER(),
+      body: const BuildERTile(),
     );
-  }
-
-  Widget ListOfER() {
-    return 
   }
 }
 
