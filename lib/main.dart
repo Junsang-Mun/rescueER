@@ -128,11 +128,11 @@ class HomePageState extends State<HomePage> {
       ),
       body: ListView.builder(
         padding: const EdgeInsets.all(8),
-        itemCount: erList.length,
+        itemCount: 8,
         itemBuilder: (context, index) {
           return const ListTile(
             leading: Icon(Icons.local_hospital),
-            title: Text('asdf'),
+            title: Text('asdfasdfasdf'),
           );
         },
       ),
