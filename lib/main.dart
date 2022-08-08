@@ -126,7 +126,16 @@ class HomePageState extends State<HomePage> {
       appBar: AppBar(
         title: const Text('rescueER'),
       ),
-      body: const BuildERTile(),
+      body: ListView.builder(
+        padding: const EdgeInsets.all(8),
+        itemCount: erList.length,
+        itemBuilder: (context, index) {
+          return const ListTile(
+            leading: Icon(Icons.local_hospital),
+            title: Text('asdf'),
+          );
+        },
+      ),
     );
   }
 }
