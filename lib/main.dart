@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'dart:html';
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart';
@@ -132,7 +131,7 @@ class HomePageState extends State<HomePage> {
         itemBuilder: (context, index) {
           return const ListTile(
             leading: Icon(Icons.local_hospital),
-            title: Text('asdfasdfasdf'),
+            title: Text(' '),
           );
         },
       ),
